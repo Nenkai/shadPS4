@@ -92,7 +92,8 @@ enum class Class : u8 {
     Lib_Fiber,             ///< The LibSceFiber implementation.
     Lib_Vdec2,             ///< The LibSceVideodec2 implementation.
     Lib_Videodec,          ///< The LibSceVideodec implementation.
-    Lib_RazorCpu,          ///< The LibRazorCpu implementation.
+    Lib_RazorCpu,          ///< The LibSceRazorCpu implementation.
+    Lib_Zlib,              ///< The LibSceZlib implementation.
     Frontend,              ///< Emulator UI
     Render,                ///< Video Core
     Render_Vulkan,         ///< Vulkan backend

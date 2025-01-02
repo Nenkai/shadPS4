@@ -47,6 +47,7 @@
 #include "core/libraries/videodec/videodec.h"
 #include "core/libraries/videodec/videodec2.h"
 #include "core/libraries/videoout/video_out.h"
+#include "core/libraries/zlib/zlib.h"
 #include "fiber/fiber.h"
 #include "jpeg/jpegenc.h"
 
@@ -97,6 +98,7 @@ void InitHLELibs(Core::Loader::SymbolsResolver* sym) {
     Libraries::Move::RegisterlibSceMove(sym);
     Libraries::Fiber::RegisterlibSceFiber(sym);
     Libraries::JpegEnc::RegisterlibSceJpegEnc(sym);
+    Libraries::Zlib::RegisterlibSceZlib(sym);
 }
 
 } // namespace Libraries
