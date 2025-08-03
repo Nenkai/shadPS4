@@ -35,6 +35,7 @@ namespace Config {
 static int volumeSlider = 100;
 static bool isNeo = false;
 static bool isDevKit = false;
+static int extraDmemInMbytes = 0;
 static bool isPSNSignedIn = false;
 static bool isTrophyPopupDisabled = false;
 static double trophyNotificationDuration = 6.0;
@@ -178,6 +179,14 @@ bool isNeoModeConsole() {
 
 bool isDevKitConsole() {
     return isDevKit;
+}
+
+int GetExtraDmemInMbytes() {
+    return extraDmemInMbytes;
+}
+
+void SetExtraDmemInMbytes(int value) {
+    extraDmemInMbytes = value;
 }
 
 bool getIsFullscreen() {
@@ -647,6 +656,7 @@ void load(const std::filesystem::path& path) {
         volumeSlider = toml::find_or<int>(general, "volumeSlider", volumeSlider);
         isNeo = toml::find_or<bool>(general, "isPS4Pro", isNeo);
         isDevKit = toml::find_or<bool>(general, "isDevKit", isDevKit);
+        extraDmemInMbytes = toml::find_or<int>(general, "extraDmemInMbytes", extraDmemInMbytes);
         isPSNSignedIn = toml::find_or<bool>(general, "isPSNSignedIn", isPSNSignedIn);
         isTrophyPopupDisabled =
             toml::find_or<bool>(general, "isTrophyPopupDisabled", isTrophyPopupDisabled);
@@ -834,6 +844,7 @@ void save(const std::filesystem::path& path) {
     data["General"]["volumeSlider"] = volumeSlider;
     data["General"]["isPS4Pro"] = isNeo;
     data["General"]["isDevKit"] = isDevKit;
+    data["General"]["extraDmemInMbytes"] = extraDmemInMbytes;
     data["General"]["isPSNSignedIn"] = isPSNSignedIn;
     data["General"]["isTrophyPopupDisabled"] = isTrophyPopupDisabled;
     data["General"]["trophyNotificationDuration"] = trophyNotificationDuration;

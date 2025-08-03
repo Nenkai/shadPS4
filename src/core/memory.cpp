@@ -49,6 +49,14 @@ void MemoryManager::SetupMemoryRegions(u64 flexible_size, bool use_extended_mem1
         LOG_WARNING(Kernel_Vmm, "Old Direct Size: {:#x} -> New Direct Size: {:#x}", old_size,
                     total_size);
     }
+    s32 extra_dmem = Config::GetExtraDmemInMbytes();
+    if (Config::GetExtraDmemInMbytes() != 0) {
+        LOG_WARNING(
+            Kernel_Vmm,
+            "extraDmemInMbytes is {}! Old Direct Size: {:#x} -> New Direct Size: {:#x}",
+            extra_dmem, total_size, total_size + extra_dmem * 1_MB);
+        total_size += extra_dmem * 1_MB;
+    }
     if (!use_extended_mem1 && is_neo) {
         total_size -= 256_MB;
     }
