@@ -809,6 +809,7 @@ set(CORE src/core/aerolib/stubs.cpp
          src/core/game_hooks/gtscb_hooks.h
          src/core/game_hooks/dc_hooks.cpp
          src/core/game_hooks/dc_hooks.h
+         src/core/game_hooks/adhoc_structs.h
 )
 
 if (ARCHITECTURE STREQUAL "x86_64")

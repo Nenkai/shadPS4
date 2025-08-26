@@ -195,7 +195,6 @@ static HookInformation CreateHook(void* originalFunction, void* targetFunction)
 #include <intrin.h>
 #endif
 #else
-#define WIN32_NO_STATUS
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #undef LHCopyMemory
