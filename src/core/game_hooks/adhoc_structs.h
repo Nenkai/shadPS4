@@ -109,6 +109,7 @@ typedef struct {
     size_t Capacity;
 } StringStruct;
 
+// std::string
 struct String {
     void* unk;
     char data[8];
@@ -140,6 +141,12 @@ struct SymbolList {
     }
 };
 
+typedef struct
+{
+    String* Name;
+    void* Unk2;
+} UnkSymbol;
+
 typedef struct {
     AdhocInstructionType type;
     char pad[3];
@@ -153,9 +160,7 @@ typedef struct {
     void* field_0x20;
     void* field_0x28;
     void* field_0x30;
-    void* field_0x38;
-    void* field_0x40;
-    void* field_0x48;
+    std::vector<UnkSymbol> CallbackVariables;
     void* field_0x50;
     void* field_0x58;
     void* field_0x60;
@@ -183,19 +188,19 @@ struct mCodeListEntry {
 struct mVariableEval : hInst {
     int field_0x04;
     SymbolList SymbolList;
-    void* field_0x28;
+    int field_0x28;
 };
 
 struct mVariablePush : hInst {
     int field_0x04;
     SymbolList SymbolList;
-    void* field_0x28;
+    int field_0x28;
 };
 
 struct mAttributeEval : hInst {
     int field_0x04;
     SymbolList SymbolList;
-    void* field_0x28;
+    int field_0x28;
 };
 
 struct mAttributePush : hInst {
@@ -339,6 +344,11 @@ struct mLogicalOr : hInst {
 
 struct mLogicalAnd : hInst {
     unsigned int Target;
+};
+
+struct mLeave : hInst {
+    unsigned int Depth;
+    unsigned int RewindLocalsStorageTo;
 };
 
 typedef struct {

@@ -29,10 +29,12 @@ constexpr auto GT7_PDI_vsprintf_V100 = 0x3A4E740;
 constexpr auto GT7_AdhocThrow_V100 = 0x30BCFA0;
 constexpr auto GT7_AdhocCompile_V100 = 0x2FECA70;
 constexpr auto GT7_SymbolMapAdd_V100 = 0x30FFF10;
+constexpr auto GT7_MException_MException = 0x30171B0;
 
 static HookInformation SymbolMapAdd_hook = {};
 static HookInformation AdhocThrow_hook = {};
 static HookInformation AdhocCompile_hook = {};
+static HookInformation MException_MException_hook = {};
 
 void PS4_SYSV_ABI ThrowImpl(char* a1, char* a2, int a3, char* a4, char* a5) {
 
@@ -67,7 +69,30 @@ void PS4_SYSV_ABI GT7Logger(void* logger, void* a2, char* path, int lineNumber, 
     LOG_INFO(Core_Hooking, "{}", std::string_view(reinterpret_cast<char*>(buffer), ret));
 }
 
+void PS4_SYSV_ABI MException_MExceptionImpl(void* this_, String* exceptMsg) {
+    LOG_INFO(Core_Hooking, "MException: {}", exceptMsg->GetName());
+
+    auto orig = (void PS4_SYSV_ABI (*)(void*, String*))MException_MException_hook.Trampoline;
+    orig(this_, exceptMsg);
+}
+
 void DumpSubroutine(mCodeGT7* mCode, int depth = 0) {
+
+     if (!mCode->CallbackVariables.empty()) {
+        for (int i = 0; i < depth; i++)
+            fmt::print("  ");
+
+        fmt::print("Callback Variables: ");
+        for (int i = 0; i < mCode->CallbackVariables.size(); i++) {
+            fmt::print("{}", mCode->CallbackVariables[i].Name->GetName());
+            if (i != mCode->CallbackVariables.size() - 1)
+                fmt::print(", ");
+        }
+
+        fmt::println("");
+        for (int i = 0; i < depth; i++)
+            fmt::print("  ");
+    }
 
     for (auto& inst : mCode->Instructions) {
         for (int i = 0; i < depth; i++)
@@ -77,17 +102,17 @@ void DumpSubroutine(mCodeGT7* mCode, int depth = 0) {
         case AdhocInstructionType::VARIABLE_EVAL: {
             mVariableEval* eval = reinterpret_cast<mVariableEval*>(inst);
             std::string name = eval->SymbolList.GetModulePath();
-            LOG_INFO(Core_Hooking, "{}: {}", magic_enum::enum_name(inst->type), name);
+            LOG_INFO(Core_Hooking, "{}: {}, Local: {}", magic_enum::enum_name(inst->type), name, eval->field_0x28);
         } break;
         case AdhocInstructionType::VARIABLE_PUSH: {
             mVariablePush* push = reinterpret_cast<mVariablePush*>(inst);
             std::string name = push->SymbolList.GetModulePath();
-            LOG_INFO(Core_Hooking, "{}: {}", magic_enum::enum_name(inst->type), name);
+            LOG_INFO(Core_Hooking, "{}: {}, Local: {}", magic_enum::enum_name(inst->type), name, push->field_0x28);
         } break;
         case AdhocInstructionType::ATTRIBUTE_EVAL: {
             mAttributeEval* eval = reinterpret_cast<mAttributeEval*>(inst);
             std::string name = eval->SymbolList.GetModulePath();
-            LOG_INFO(Core_Hooking, "{}: {}", magic_enum::enum_name(inst->type), name);
+            LOG_INFO(Core_Hooking, "{}: {}, Local: {}", magic_enum::enum_name(inst->type), name, eval->field_0x28);
         } break;
         case AdhocInstructionType::ATTRIBUTE_PUSH: {
             mAttributePush* push = reinterpret_cast<mAttributePush*>(inst);
@@ -208,6 +233,11 @@ void DumpSubroutine(mCodeGT7* mCode, int depth = 0) {
             mLogicalOr* logic = reinterpret_cast<mLogicalOr*>(inst);
             LOG_INFO(Core_Hooking, "{}: {}", magic_enum::enum_name(inst->type), logic->Target);
         } break;
+        case AdhocInstructionType::LEAVE: {
+            mLeave* leave = reinterpret_cast<mLeave*>(inst);
+            LOG_INFO(Core_Hooking, "{}: Depth:{}, RewindLocalsStorageTo:{}", 
+                magic_enum::enum_name(inst->type), leave->Depth, leave->RewindLocalsStorageTo);
+        } break;
         default:
             LOG_INFO(Core_Hooking, "{}", magic_enum::enum_name(inst->type));
         }
@@ -282,6 +312,7 @@ void Initialize(Core::Module* mainModule) {
     // InitHook(SymbolMapAdd_hook, GT7_SymbolMapAdd_V100, SymbolMapAddImpl);
     // InitHook(AdhocThrow_hook, GT7_AdhocThrow_V100, ThrowImpl);
     InitHook(AdhocCompile_hook, GT7_AdhocCompile_V100, CompileImpl);
+    InitHook(MException_MException_hook, GT7_MException_MException, MException_MExceptionImpl);
 
     initted = true;
 }
